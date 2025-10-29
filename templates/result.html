@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Result</h2>
+{% if result %}
+<p>Marks: {{ result.marks_obtained }} / {{ result.total_marks }}</p>
+<p>Grade: {{ result.grade or 'Pending' }}</p>
+{% else %}
+<p>No result yet. Please wait for processing.</p>
+{% endif %}
+<p><a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+{% endblock %}

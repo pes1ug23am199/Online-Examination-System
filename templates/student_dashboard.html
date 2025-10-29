@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Welcome, {{ student_name }}</h2>
+<p><a href="{{ url_for('student_logout') }}">Logout</a></p>
+<h3>Available Quizzes</h3>
+<ul>
+  {% for q in quizzes %}
+    <li>
+      {{ q.subject_name }} — {{ q.quiz_title }} ({{ q.date }})
+      [<a href="{{ url_for('student_quiz', quiz_id=q.quiz_id) }}">Take Quiz</a>]
+    </li>
+  {% else %}
+    <li>No quizzes available.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

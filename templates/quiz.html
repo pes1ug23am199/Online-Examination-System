@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Quiz</h2>
+<form method="post">
+  {% for q in questions %}
+    <div class="question">
+      <p><strong>Q{{ loop.index }}.</strong> {{ q.question_text }}</p>
+      {% for opt,label in [('A', q.option_a), ('B', q.option_b), ('C', q.option_c), ('D', q.option_d)] %}
+        <label>
+          <input type="radio" name="q_{{ q.question_id }}" value="{{ opt }}" />
+          {{ opt }}. {{ label }}
+        </label><br />
+      {% endfor %}
+    </div>
+    <hr />
+  {% else %}
+    <p>No questions in this quiz.</p>
+  {% endfor %}
+  <button type="submit">Submit Answers</button>
+</form>
+{% endblock %}
