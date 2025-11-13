@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="stack">
+  <div class="card">
+    <h2 class="h2">Results by Quiz</h2>
+    <form method="get" class="form row" action="{{ url_for('staff_results') }}">
+      <select class="select" name="quiz_id" required>
+        <option value="" disabled selected>Select a quiz</option>
+        {% for q in quizzes %}
+          <option value="{{ q.quiz_id }}" {% if selected_quiz_id and selected_quiz_id == q.quiz_id %}selected{% endif %}>{{ q.quiz_title }} (#{{ q.quiz_id }})</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">View</button>
+    </form>
+  </div>
+
+  {% if meta %}
+  <div class="card">
+    <h2 class="h2" style="margin:0">{{ meta.quiz_title }}</h2>
+    <p class="lead" style="margin:0">{{ meta.subject_name }}</p>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    {% if rows and rows|length %}
+    <table class="table">
+      <thead>
+        <tr><th>USN</th><th>Name</th><th>Marks</th><th>Total</th><th>Grade</th></tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.usn }}</td>
+          <td>{{ r.name }}</td>
+          <td>{{ r.marks_obtained }}</td>
+          <td>{{ r.total_marks }}</td>
+          <td>{{ r.grade }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No results for this quiz.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

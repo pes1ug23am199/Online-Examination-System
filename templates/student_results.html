@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card">
+  <h2 class="h2">My Results</h2>
+  {% if rows and rows|length %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Subject</th>
+        <th>Quiz</th>
+        <th>Marks</th>
+        <th>Total</th>
+        <th>Grade</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.subject_name }}</td>
+        <td>{{ r.quiz_title }}</td>
+        <td>{{ r.marks_obtained }}</td>
+        <td>{{ r.total_marks }}</td>
+        <td>{{ r.grade }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>No results yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -160,79 +160,65 @@ ADD CONSTRAINT unique_student_quiz_result UNIQUE (student_id, quiz_id);
 ALTER TABLE Answer
 ADD CONSTRAINT unique_student_question_answer UNIQUE (student_id, question_id);
 
+-- Enforce question uniqueness per quiz at the database level
+-- Normalized column for case/whitespace-insensitive comparison
+ALTER TABLE Question
+  ADD COLUMN question_text_norm VARCHAR(1024)
+    GENERATED ALWAYS AS (LOWER(TRIM(question_text))) STORED,
+  ADD UNIQUE KEY uniq_quiz_question_text_norm (quiz_id, question_text_norm);
+
 --Trigger 1: Automatically calculate and insert Score after all answers are submitted
 
 DELIMITER //
-CREATE TRIGGER trg_calculate_score
-AFTER INSERT ON Answer
+-- Drop all existing related triggers to reset
+DROP TRIGGER IF EXISTS trg_calculate_score;
+DROP TRIGGER IF EXISTS trg_generate_result;
+DROP TRIGGER IF EXISTS trg_score_after_answer_ins;
+DROP TRIGGER IF EXISTS trg_score_after_answer_upd;
+DROP TRIGGER IF EXISTS trg_score_after_answer_del;
+DROP TRIGGER IF EXISTS trg_result_after_score_ins;
+DROP TRIGGER IF EXISTS trg_result_after_score_upd;
+DROP TRIGGER IF EXISTS trg_prevent_duplicate_submission;
+DROP TRIGGER IF EXISTS trg_student_non_empty_name;
+
+-- Trigger 1: Prevent duplicate exam submissions
+CREATE TRIGGER trg_prevent_duplicate_submission
+BEFORE INSERT ON Answer
 FOR EACH ROW
 BEGIN
-    DECLARE correct CHAR(1);
-    DECLARE total INT;
-    DECLARE obtained INT;
+  DECLARE qz INT;
+  SELECT quiz_id INTO qz FROM Question WHERE question_id = NEW.question_id;
+  IF EXISTS (SELECT 1 FROM Score WHERE student_id = NEW.student_id AND quiz_id = qz) THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Duplicate submission: You have already submitted this exam.';
+  END IF;
+END;//
 
-    -- Get correct option
-    SELECT correct_option INTO correct
-    FROM Question
-    WHERE question_id = NEW.question_id;
+-- Trigger 2: Prevent duplicate question in the same quiz
+-- Clean up any prior trigger-2 variants
+DROP TRIGGER IF EXISTS trg_student_non_empty_name;
+DROP TRIGGER IF EXISTS trg_student_required_fields_ins;
+DROP TRIGGER IF EXISTS trg_staff_required_fields_ins;
+DROP TRIGGER IF EXISTS trg_prevent_duplicate_question;
 
-    -- If student’s answer matches, update marks
-    IF NEW.chosen_option = correct THEN
-        SET obtained = 1;
-    ELSE
-        SET obtained = 0;
+CREATE TRIGGER trg_prevent_duplicate_question
+BEFORE INSERT ON Question
+FOR EACH ROW
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM Question
+        WHERE quiz_id = NEW.quiz_id
+          AND TRIM(LOWER(question_text)) = TRIM(LOWER(NEW.question_text))
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MYSQL_ERRNO = 1644,
+            MESSAGE_TEXT = 'Duplicate question detected: This question already exists in the selected quiz.';
     END IF;
-
-    -- Insert or update Score table
-    IF EXISTS (SELECT * FROM Score WHERE student_id = NEW.student_id AND quiz_id = 
-        (SELECT quiz_id FROM Question WHERE question_id = NEW.question_id)) THEN
-        UPDATE Score 
-        SET marks_obtained = marks_obtained + obtained
-        WHERE student_id = NEW.student_id
-        AND quiz_id = (SELECT quiz_id FROM Question WHERE question_id = NEW.question_id);
-    ELSE
-        INSERT INTO Score (student_id, quiz_id, marks_obtained, total_marks)
-        VALUES (
-            NEW.student_id,
-            (SELECT quiz_id FROM Question WHERE question_id = NEW.question_id),
-            obtained, 
-            5
-        );
-    END IF;
-END;
-//
+END;//
 DELIMITER ;
 
 --Trigger 2: Automatically generate Result after Score update
 
-DELIMITER //
-CREATE TRIGGER trg_generate_result
-AFTER INSERT ON Score
-FOR EACH ROW
-BEGIN
-    DECLARE grade VARCHAR(5);
-    DECLARE percentage DECIMAL(5,2);
-
-    SET percentage = (NEW.marks_obtained / NEW.total_marks) * 100;
-
-    IF percentage >= 90 THEN
-        SET grade = 'A+';
-    ELSEIF percentage >= 75 THEN
-        SET grade = 'A';
-    ELSEIF percentage >= 60 THEN
-        SET grade = 'B+';
-    ELSEIF percentage >= 50 THEN
-        SET grade = 'B';
-    ELSE
-        SET grade = 'F';
-    END IF;
-
-    INSERT INTO Result (student_id, quiz_id, grade)
-    VALUES (NEW.student_id, NEW.quiz_id, grade)
-    ON DUPLICATE KEY UPDATE grade = VALUES(grade);
-END;
-//
-DELIMITER ;
 
 --Function 1: Calculate grade directly
 

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid cols-2">
+  <div class="card">
+    <h2 class="h2">Staff Signup</h2>
+    <p class="lead">Create an account to manage subjects and quizzes.</p>
+    <form method="post" class="form stack" autocomplete="on">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" class="input" type="text" name="name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" name="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" class="input" type="password" name="password" autocomplete="new-password" required />
+      </div>
+      <div class="field">
+        <label for="department">Department</label>
+        <input id="department" class="input" type="text" name="department" />
+      </div>
+      <button type="submit" class="btn btn-primary">Create account</button>
+    </form>
+    <p class="lead">Already staff? <a href="{{ url_for('staff_login') }}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}

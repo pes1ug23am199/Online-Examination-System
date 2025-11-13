@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Result</h2>
-{% if result %}
-<p>Marks: {{ result.marks_obtained }} / {{ result.total_marks }}</p>
-<p>Grade: {{ result.grade or 'Pending' }}</p>
-{% else %}
-<p>No result yet. Please wait for processing.</p>
-{% endif %}
-<p><a href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+<div class="card">
+  <h2 class="h2">Result</h2>
+  {% if result %}
+    <p class="lead">Subject: <strong>{{ result.subject_name }}</strong></p>
+    <p class="lead">Quiz: <strong>{{ result.quiz_title }}</strong></p>
+    <p class="lead">Marks: <strong>{{ result.marks_obtained }}</strong> / {{ result.total_marks }}</p>
+    <p class="lead">Grade: <strong>{{ result.grade or 'Pending' }}</strong></p>
+  {% else %}
+    <p class="lead">No result yet. Please wait for processing.</p>
+  {% endif %}
+  <p><a class="btn btn-ghost" href="{{ url_for('student_dashboard') }}">Back to Dashboard</a></p>
+</div>
 {% endblock %}

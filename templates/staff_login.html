@@ -1,10 +1,28 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Staff Login</h2>
-<form method="post">
-  <label>Email <input type="email" name="email" required /></label><br />
-  <label>Password <input type="password" name="password" required /></label><br />
-  <button type="submit">Login</button>
-</form>
-<p>Student? <a href="{{ url_for('student_login') }}">Login here</a></p>
+<div class="grid cols-2">
+  <div class="card">
+    <h2 class="h2">Staff Login</h2>
+    <p class="lead">Administrative access for staff members.</p>
+    <form method="post" class="form stack" autocomplete="on">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" name="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="row" style="gap:.5rem">
+          <input id="password" class="input" type="password" name="password" autocomplete="current-password" required />
+          <button type="button" class="btn btn-ghost" onclick="const p=document.getElementById('password'); p.type=p.type==='password'?'text':'password'">Show</button>
+        </div>
+      </div>
+      <label class="row" style="gap:.5rem; align-items:center">
+        <input type="checkbox" name="remember" value="1" /> <span>Remember me</span>
+      </label>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <p class="lead">Student? <a href="{{ url_for('student_login') }}">Login here</a></p>
+    <p class="lead">New staff? <a href="{{ url_for('staff_signup') }}">Create an account</a></p>
+  </div>
+</div>
 {% endblock %}

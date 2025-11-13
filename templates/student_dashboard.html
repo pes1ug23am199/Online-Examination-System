@@ -1,16 +1,58 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Welcome, {{ student_name }}</h2>
-<p><a href="{{ url_for('student_logout') }}">Logout</a></p>
-<h3>Available Quizzes</h3>
-<ul>
-  {% for q in quizzes %}
-    <li>
-      {{ q.subject_name }} — {{ q.quiz_title }} ({{ q.date }})
-      [<a href="{{ url_for('student_quiz', quiz_id=q.quiz_id) }}">Take Quiz</a>]
-    </li>
-  {% else %}
-    <li>No quizzes available.</li>
-  {% endfor %}
-</ul>
+<div class="stack">
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h2 class="h2" style="margin:0">Welcome, {{ student_name }}</h2>
+      <a class="btn btn-ghost" href="{{ url_for('student_logout') }}">Logout</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between; align-items:center">
+      <h2 class="h2" style="margin:0">Available Quizzes</h2>
+      <a class="btn btn-ghost" href="{{ url_for('student_results_overview') }}">View My Results</a>
+    </div>
+    {% if quizzes %}
+    <table class="table">
+      <thead>
+        <tr><th>Subject</th><th>Quiz</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for q in quizzes %}
+        <tr>
+          <td><strong>{{ q.subject_name }}</strong></td>
+          <td>{{ q.quiz_title }}</td>
+          <td>{{ q.date }}</td>
+          <td style="text-align:right"><a class="btn btn-primary" href="{{ url_for('student_quiz', quiz_id=q.quiz_id) }}">Start Quiz</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No quizzes available.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2 class="h2">Subjects</h2>
+    {% if subjects %}
+    <table class="table">
+      <thead>
+        <tr><th>Subject</th><th>Quizzes</th></tr>
+      </thead>
+      <tbody>
+        {% for s in subjects %}
+        <tr>
+          <td>{{ s.subject_name }}</td>
+          <td>{{ s.quiz_count }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <p>No subjects found.</p>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

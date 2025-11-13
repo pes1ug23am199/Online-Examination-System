@@ -7,24 +7,36 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   </head>
   <body>
-    <header>
-      <h1>Online Examination System</h1>
-      <nav>
-        <a href="/student/login">Student</a> | <a href="/staff/login">Staff</a>
-      </nav>
-      <hr />
+    <header class="header">
+      <div class="container nav">
+        <div class="brand">
+          <div class="brand-badge"></div>
+          <span>Online Examination System</span>
+        </div>
+        <nav class="row">
+          <a href="{{ url_for('student_login') }}">Student</a>
+          <a href="{{ url_for('staff_login') }}">Staff</a>
+        </nav>
+      </div>
     </header>
     <main>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="flashes">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-      {% block content %}{% endblock %}
+      <section class="section">
+        <div class="container">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <ul class="flashes">
+                {% for category, message in messages %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          {% endwith %}
+          {% block content %}{% endblock %}
+        </div>
+      </section>
     </main>
+    <footer class="footer">
+      <div class="container">Online Examination System</div>
+    </footer>
   </body>
 </html>
